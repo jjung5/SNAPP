@@ -1,4 +1,5 @@
 ## DispersR Example Code ## 
+## source code and additional info on how data were prepared found here: https://github.com/lhenneman/disperseR/tree/master/R
 
 install.packages("Rcpp")
 install.packages(c("processx", "callr"), type = "source")
@@ -26,17 +27,21 @@ library(raster)
 # create directory #
 disperseR::create_dirs(location="C:/Users/clair/Desktop/DEOHS/DispersR")
 
-# read in zipcode and monthly emissions data #
+# read in zipcode data #
 crosswalk <- disperseR::crosswalk
 zipcodecoordinate <- disperseR::zipcodecoordinate
 zcta <- disperseR::get_data(data = "zctashapefile")
 
-# read in emissions data #
+# emissions data #
+# this currenlty reads in the point source emissions data that is included
+# in the package, we need to swap this out for our emissions files (sample LANDIS file in repository), 
+# and make sure it's in the right format. It is very close to the right format right now, but 
+# we need to convert heat release (from LANDIS) to release height, which I'm not sure how to do
 
-#monthly
+#monthly power plant emissions
 PP.units.monthly1995_2017 <- disperseR::PP.units.monthly1995_2017
 
-#annual
+#annual power plant emissions
 unitsrun2005 <- disperseR::units %>% 
   dplyr::filter(year ==2005)%>% 
   dplyr::top_n(2, SOx) 
@@ -47,7 +52,10 @@ unitsrun2006 <- disperseR::units %>%
 head(unitsrun2005)
 unitsrun <- data.table::data.table(rbind(unitsrun2005, unitsrun2006)) 
 
-### reading in PBL data - start of what causes R to crash ###########
+# reading in PBL data #
+# this is what causes R to crash on my computer and the dept computer, but we shouln't need this because 
+# boundary layer height is included in the WRF achive, so I need to figure how to get the code to pull PBL from WRF insead
+
 directory <- hpbl_dir
 file <- file.path(directory, 'hpbl.mon.mean.nc')
 url <-'https://www.esrl.noaa.gov/psd/repository/entry/get/hpbl.mon.mean.nc?entryid=synth%3Ae570c8f9-ec09-4e89-93b4-babd5651e7a9%3AL05BUlIvTW9udGhsaWVzL21vbm9sZXZlbC9ocGJsLm1vbi5tZWFuLm5j'
@@ -59,6 +67,8 @@ hpbl_rasterin <- suppressWarnings(raster::brick(x = file, varname = 'hpbl'))
 ## end of what causes R to crash ##############
 
 # read in met files (example uses reanalysis data) #
+# need to change this so it reads WRF ARL files (sample files attached to repository) 
+
 disperseR::get_data(data = "metfiles", 
                     start.year = "2005", 
                     start.month = "07", 
@@ -75,7 +85,7 @@ head(input_refs)
 
 # set final inputs and run dispersion # 
 hysp_raw <- disperseR::run_disperser_parallel(input.refs = input_refs_subset,
-                                              pbl.height = 100,
+                                              pbl.height = ,
                                               species = 'so2',
                                               proc_dir = proc_dir,
                                               overwrite = FALSE, ## FALSE BY DEFAULT
