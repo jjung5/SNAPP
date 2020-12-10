@@ -67,7 +67,7 @@ hpbl_rasterin <- suppressWarnings(raster::brick(x = file, varname = 'hpbl'))
 ## end of what causes R to crash ##############
 
 # read in met files (example uses reanalysis data) #
-# need to change this so it reads WRF ARL files (sample files attached to repository) 
+# need to change this so it reads WRF ARL files from https://www.ready.noaa.gov/data/archives/wrf27km/
 
 disperseR::get_data(data = "metfiles", 
                     start.year = "2005", 
